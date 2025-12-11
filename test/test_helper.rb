@@ -23,7 +23,7 @@ ActiveRecord::Schema.define do
     t.timestamps null: false
   end
 
-  create_table :refresh_tokens, force: true do |t|
+  create_table :seshlock_refresh_tokens, force: true do |t|
     t.string     :token_digest,      null: false
     t.datetime   :expires_at,        null: false
     t.datetime   :revoked_at
@@ -32,9 +32,9 @@ ActiveRecord::Schema.define do
     t.timestamps null: false
   end
 
-  add_index :refresh_tokens, :token_digest, unique: true
+  add_index :seshlock_refresh_tokens, :token_digest, unique: true
 
-  create_table :access_tokens, force: true do |t|
+  create_table :seshlock_access_tokens, force: true do |t|
     t.string     :token_digest,      null: false
     t.datetime   :expires_at,        null: false
     t.datetime   :revoked_at
@@ -42,7 +42,7 @@ ActiveRecord::Schema.define do
     t.timestamps null: false
   end
 
-  add_index :access_tokens, :token_digest, unique: true
+  add_index :seshlock_access_tokens, :token_digest, unique: true
 end
 
 # Mock User model for testing
