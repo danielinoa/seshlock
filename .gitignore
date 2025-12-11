@@ -6,6 +6,10 @@
 /pkg/
 *.gem
 
+# Documentation
+/doc/
+/.yardoc/
+
 # Ruby version managers
 .ruby-version
 .ruby-gemset
@@ -26,5 +30,5 @@ Thumbs.db
 /coverage/
 /tmp/
 
-# Gem lock (optional for gems, but keeping for dev consistency)
-# Gemfile.lock
+# Gemfile.lock - gems should test against a range of dependency versions
+Gemfile.lock
