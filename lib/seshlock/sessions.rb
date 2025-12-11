@@ -78,7 +78,7 @@ module Seshlock
 
       digest = digest_token(refresh_token)
       refresh_record = RefreshToken.active.find_by(token_digest: digest)
-      return nil unless refresh_record
+      return nil if refresh_record.nil?
 
       user = refresh_record.user
       refresh_record.revoke!

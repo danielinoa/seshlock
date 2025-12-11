@@ -1,0 +1,32 @@
+# frozen_string_literal: true
+
+AllCops:
+  TargetRubyVersion: 3.3
+  NewCops: enable
+  SuggestExtensions: false
+  Exclude:
+    - "pkg/**/*"
+    - "test/tmp/**/*"
+
+# Project style: avoid `unless` - prefer explicit negation with `if`
+# RuboCop doesn't have a built-in cop to ban `unless` entirely,
+# so we rely on grep/CI checks: `grep -r "unless" lib/`
+#
+# Rationale: `if !condition` or `if x.nil?` is more explicit and
+# avoids the mental gymnastics of double negatives.
+
+Style/NegatedIf:
+  Enabled: false  # Don't auto-convert `if !x` to `unless x`
+
+Style/IfUnlessModifier:
+  Enabled: false  # Allow multi-line if statements
+
+Layout/LineLength:
+  Max: 120
+
+Style/Documentation:
+  Enabled: false  # Not requiring class documentation
+
+Style/FrozenStringLiteralComment:
+  Enabled: true
+  EnforcedStyle: always

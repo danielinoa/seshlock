@@ -81,7 +81,7 @@ module Seshlock
                                     .includes(refresh_token: :user)
                                     .find_by(token_digest: digest)
 
-      raise Seshlock::InvalidTokenError, "Token is expired or revoked" unless token
+      raise Seshlock::InvalidTokenError, "Token is expired or revoked" if token.nil?
 
       @current_seshlock_access_token = token
       @current_seshlock_user         = token.refresh_token.user
@@ -101,7 +101,7 @@ module Seshlock
       digest = Seshlock::Sessions.digest_token(raw)
       token  = Seshlock::RefreshToken.active.find_by(token_digest: digest)
 
-      raise Seshlock::InvalidGrantError, "The refresh token is invalid or has expired" unless token
+      raise Seshlock::InvalidGrantError, "The refresh token is invalid or has expired" if token.nil?
 
       @current_seshlock_refresh_token = token
     end
@@ -122,7 +122,7 @@ module Seshlock
       raise Seshlock::MissingCredentialsError, "Email and password are required" if email.blank? || password.blank?
 
       user = User.find_by(email: email)
-      raise Seshlock::InvalidCredentialsError, "Invalid email or password" unless user&.authenticate(password)
+      raise Seshlock::InvalidCredentialsError, "Invalid email or password" if !user&.authenticate(password)
 
       token_pair = Seshlock::Sessions.issue_tokens_to(user: user, device: device)
       @current_seshlock_user = user
