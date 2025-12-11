@@ -72,23 +72,45 @@ class SeshlockSessionsTest < SeshlockTestCase
     assert_equal @user, refresh_token.user
   end
 
-  # --- refresh ---
+  # --- refresh (token rotation) ---
 
-  def test_refresh_returns_new_access_token
+  def test_refresh_returns_new_token_pair
     token_pair = Seshlock::Sessions.issue_tokens_to(user: @user)
     result = Seshlock::Sessions.refresh(refresh_token: token_pair.refresh_token)
 
     assert_not_nil result
-    assert_equal 2, result.length
-    assert_kind_of String, result[0]  # new access token
-    assert_kind_of Time, result[1]    # expires_at
+    assert_kind_of Seshlock::TokenPair, result
+    assert_kind_of String, result.access_token
+    assert_kind_of String, result.refresh_token
+    assert_kind_of Time, result.access_token_expires_at
+    assert_kind_of Time, result.refresh_token_expires_at
   end
 
-  def test_refresh_creates_new_access_token_record
+  def test_refresh_revokes_old_refresh_token
+    token_pair = Seshlock::Sessions.issue_tokens_to(user: @user)
+    old_refresh_digest = Seshlock::Sessions.digest_token(token_pair.refresh_token)
+
+    Seshlock::Sessions.refresh(refresh_token: token_pair.refresh_token)
+
+    old_refresh_token = Seshlock::RefreshToken.find_by(token_digest: old_refresh_digest)
+    assert old_refresh_token.revoked?, "Old refresh token should be revoked"
+  end
+
+  def test_refresh_issues_different_tokens
+    token_pair = Seshlock::Sessions.issue_tokens_to(user: @user)
+    new_pair = Seshlock::Sessions.refresh(refresh_token: token_pair.refresh_token)
+
+    assert_not_equal token_pair.access_token, new_pair.access_token
+    assert_not_equal token_pair.refresh_token, new_pair.refresh_token
+  end
+
+  def test_refresh_creates_new_token_records
     token_pair = Seshlock::Sessions.issue_tokens_to(user: @user)
 
-    assert_difference "Seshlock::AccessToken.count", 1 do
-      Seshlock::Sessions.refresh(refresh_token: token_pair.refresh_token)
+    assert_difference "Seshlock::RefreshToken.count", 1 do
+      assert_difference "Seshlock::AccessToken.count", 1 do
+        Seshlock::Sessions.refresh(refresh_token: token_pair.refresh_token)
+      end
     end
   end
 
@@ -114,6 +136,16 @@ class SeshlockSessionsTest < SeshlockTestCase
     raw_token = create_refresh_token(user: @user, expires_at: 1.day.ago)
     result = Seshlock::Sessions.refresh(refresh_token: raw_token)
     assert_nil result
+  end
+
+  def test_refresh_preserves_device_identifier
+    token_pair = Seshlock::Sessions.issue_tokens_to(user: @user, device: "iPhone")
+    new_pair = Seshlock::Sessions.refresh(refresh_token: token_pair.refresh_token, device: "iPhone")
+
+    new_refresh_digest = Seshlock::Sessions.digest_token(new_pair.refresh_token)
+    new_refresh_record = Seshlock::RefreshToken.find_by(token_digest: new_refresh_digest)
+
+    assert_equal "iPhone", new_refresh_record.device_identifier
   end
 
   # --- revoke_refresh_token ---

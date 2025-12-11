@@ -137,7 +137,7 @@ module Seshlock
       @current_seshlock_refresh_token&.revoke!
     end
 
-    # Revokes the current refresh token and issues new tokens.
+    # Rotates tokens: revokes the current refresh token and issues new ones.
     #
     # Call authenticate_with_seshlock_refresh_token! before this method.
     #
@@ -145,15 +145,21 @@ module Seshlock
     # @return [Hash] response containing user info and new tokens
     def seshlock_refresh(device: nil)
       user = @current_seshlock_refresh_token.user
-      @current_seshlock_refresh_token.revoke!
-
-      token_pair = Seshlock::Sessions.issue_tokens_to(user: user, device: device)
+      raw_refresh_token = extract_raw_refresh_token
+      
+      token_pair = Seshlock::Sessions.refresh(refresh_token: raw_refresh_token, device: device)
       @current_seshlock_user = user
 
       build_token_response(user: user, token_pair: token_pair)
     end
 
     private
+
+    # Extracts the raw refresh token from params.
+    # Override if your token comes from a different source.
+    def extract_raw_refresh_token
+      params[:refresh_token]
+    end
 
     # Builds the token response hash.
     #

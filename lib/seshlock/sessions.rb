@@ -69,29 +69,21 @@ module Seshlock
       )
     end
 
-    # Given a **raw** refresh token string, issue a new access token.
+    # Given a **raw** refresh token string, rotate tokens.
     #
-    # Returns [raw_access_token, access_expires_at] or nil if invalid.
-    def refresh(refresh_token:)
+    # Revokes the old refresh token and issues a new token pair.
+    # Returns a TokenPair or nil if the refresh token is invalid.
+    def refresh(refresh_token:, device: nil)
       return nil if refresh_token.to_s.empty?
 
-      digest    = digest_token(refresh_token)
-      now       = Time.current
-
+      digest = digest_token(refresh_token)
       refresh_record = RefreshToken.active.find_by(token_digest: digest)
       return nil unless refresh_record
 
-      access_expires_at = now + Seshlock.configuration.access_token_ttl
-      raw_access_token  = generate_random_token
+      user = refresh_record.user
+      refresh_record.revoke!
 
-      AccessToken.create!(
-        refresh_token: refresh_record,
-        token_digest:  digest_token(raw_access_token),
-        expires_at:    access_expires_at,
-        revoked_at:    nil
-      )
-
-      [raw_access_token, access_expires_at]
+      issue_tokens_to(user: user, device: device)
     end
 
     def revoke_refresh_token(raw_refresh_token:)
