@@ -1,0 +1,30 @@
+# Bundler
+/.bundle/
+/vendor/bundle
+
+# Gem build artifacts
+/pkg/
+*.gem
+
+# Ruby version managers
+.ruby-version
+.ruby-gemset
+
+# IDE / Editor
+/.idea/
+*.swp
+*.swo
+*~
+.vscode/
+.ruby-lsp/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test artifacts
+/coverage/
+/tmp/
+
+# Gem lock (optional for gems, but keeping for dev consistency)
+# Gemfile.lock
