@@ -1,5 +1,7 @@
 # Seshlock
 
+[![Tests](https://github.com/danielinoa/seshlock/actions/workflows/test.yml/badge.svg)](https://github.com/danielinoa/seshlock/actions/workflows/test.yml)
+
 Session token management for Rails applications. Seshlock provides secure access and refresh token authentication backed by Active Record.
 
 ## Features
