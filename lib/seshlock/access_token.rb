@@ -2,6 +2,7 @@
 require "active_record"
 
 class Seshlock::AccessToken < ActiveRecord::Base
+  self.table_name = "seshlock_access_tokens"
   # Validations
   validates :token_digest, presence: true, uniqueness: true
 

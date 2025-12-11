@@ -2,12 +2,13 @@
 require "active_record"
 
 class Seshlock::RefreshToken < ActiveRecord::Base
+  self.table_name = "seshlock_refresh_tokens"
   # Validations
   validates :token_digest, uniqueness: true, presence: true
 
   # Associations
   belongs_to :user, class_name: "User", inverse_of: :seshlock_refresh_tokens
-  has_many :access_tokens, dependent: :destroy, inverse_of: :refresh_token
+  has_many :access_tokens, class_name: "Seshlock::AccessToken", dependent: :destroy, inverse_of: :refresh_token
 
   # Scopes
   scope :not_expired, -> { where("expires_at > ?", Time.current) }
