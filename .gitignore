@@ -32,3 +32,4 @@ Thumbs.db
 
 # Gemfile.lock - gems should test against a range of dependency versions
 Gemfile.lock
+/test/tmp/
