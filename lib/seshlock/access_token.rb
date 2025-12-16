@@ -8,6 +8,7 @@ class Seshlock::AccessToken < ActiveRecord::Base
 
   # Associations
   belongs_to :refresh_token, class_name: "Seshlock::RefreshToken", inverse_of: :access_tokens
+  has_one :user, through: :refresh_token
 
   # Scopes
   scope :not_expired, -> { where("expires_at > ?", Time.current) }

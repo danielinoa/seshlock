@@ -120,4 +120,18 @@ class SeshlockAccessTokenTest < SeshlockTestCase
     
     assert_equal @refresh_token, token.refresh_token
   end
+
+  def test_has_one_user_through_refresh_token
+    raw_token = create_access_token(refresh_token: @refresh_token)
+    token = Seshlock::AccessToken.find_by(token_digest: Seshlock::Sessions.digest_token(raw_token))
+
+    assert_equal @user, token.user
+  end
+
+  def test_user_is_same_as_refresh_token_user
+    raw_token = create_access_token(refresh_token: @refresh_token)
+    token = Seshlock::AccessToken.find_by(token_digest: Seshlock::Sessions.digest_token(raw_token))
+
+    assert_equal token.refresh_token.user, token.user
+  end
 end
